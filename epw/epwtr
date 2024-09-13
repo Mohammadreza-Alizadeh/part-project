@@ -239,6 +239,10 @@ Usage:
   epw -h                   Display this help message.
   epw CityName             Show last updated weather conditions for a city from database locally.
 
+Also:
+  there is a -v option that is Verbose mode and is usefull for debuging
+  you should specify first, before any other flag
+
 EOF
 }
 
