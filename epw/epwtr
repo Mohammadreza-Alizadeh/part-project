@@ -1,0 +1,245 @@
+#!/bin/bash
+
+# Variables
+database_dir="/opt/data/epweather/db"
+database_file="$database_dir/cities.txt"
+verbose=false
+log_dir="/var/log/epweather/epw.log"
+
+
+main() {
+    local city_name
+    while getopts "a:d:n:luhv" arg; do
+        case $arg in
+            a )
+                city_name=$OPTARG
+                log "Adding city '$city_name' to the database..." show
+                add_city_to_db $city_name
+                exit_code=$?
+                log "Adding to database proccess is finished - exit code : $exit_code"
+                exit $exit_code
+                ;;
+            d )
+                city_name=$OPTARG
+                log "Removing city '$city_name' from the database..."
+                delete_from_db $city_name
+                exit_code=$?
+                log "Deleting from database proccess is finished - exit code : $?"
+                exit $exit_code
+                ;;
+            n )
+                city_name=$OPTARG
+                log "Getting real-time weather for city '$city_name' without checking the database..."
+                local response=$(retrive_info $city_name)
+                
+                if [[ $response == "404" ]]; then
+                    log "$city_name is not a valid city name" show
+                    exit 1
+                fi
+
+                if [[ $response == "500" ]]; then
+                    log "something is wrong with the server" show
+                    exit 2
+                fi
+                echo "$response"
+
+                ;;
+            l )
+                log "Getting the list of cities..."
+                list_of_cities
+                exit_code=$?
+                log "Printing the list of cities process is finished - exit code : $exit_code"
+                exit $exit_code
+                ;;
+            u )
+                log "Updating the database for all cities..."
+                update_cities
+                exit_code=$?
+                log "Updating process is finished - exit code : $exit_code"
+                exit $exit_code
+                ;;
+
+            v )
+
+                echo "Verbose mode is on"
+                verbose="true"
+                ;;
+            h )
+                usage
+                exit
+                ;;
+        esac
+    done 
+
+
+    # If no options are provided, show usage
+    if [[ $OPTIND -eq 1 && $# -eq 0 ]]; then
+        usage
+        exit 0
+    fi
+
+    if [[ $# -eq 1 ]]; then
+        city_name="$1"
+        log "Checking for existense of city in database"
+        grep -wq "$city_name" "$database_file"
+        if [[ $? -ne 0 ]]; then
+            log "$city_name doesn't exist in database" show
+            echo "try adding it to the database using epw -a $city_name"
+            exit 1
+        fi
+
+        if [[ ! -s "$database_dir/$city_name.txt" ]]; then
+            log "there is no local data of $city_name" show 
+            echo "you can retrive data for all cities using epw -u" 
+            echo "or you can retrive data for $city_name online without saving it localy using epw -n $city_name"
+            exit 1 
+        fi
+        tail -n 1 "$database_dir/$city_name.txt"
+    fi
+}
+
+
+log() {
+    if [[ $verbose == "true" || "$2" == "show" ]]; then
+        echo "$(date +'%Y-%m-%d %H:%M:%S') - $1" | sudo tee -a "$log_dir"
+    else
+        echo "$(date +'%Y-%m-%d %H:%M:%S') - $1" | sudo tee -a "$log_dir" >&/dev/null
+    fi
+}
+
+add_city_to_db(){
+
+    local city="$1"
+    log "Check if the city already exists"
+    if [[ -f $database_file ]]; then
+        grep -wq "$city" $database_file
+        if [[ $? -eq 0 ]]; then
+            log "City already exists in database" show
+            return 1
+        fi
+    fi
+
+    log "Appending $city to the database"
+    echo $city >> $database_file
+    log "$city added to the database succussfully" show 
+    
+    log "Creating $city.txt file"
+    touch "$database_dir/$city.txt"
+    if [[ $? -ne 0 ]]; then
+        log "failed to create $city.txt" show
+        log "$city will be remove from the database (cities.txx)" show
+        delete_from_db $city
+        return 2
+    fi
+
+    return 0
+}
+
+delete_from_db(){
+    local city="$1"
+    log "Checking if the city exists"
+    grep -wq "$city" $database_file
+    if [[ $? -ne 0 ]]; then
+        log "$city doesn't exists in the database" show
+        return 1
+    fi
+    sed -i "/^$city$/d" $database_file &>/dev/null
+    if [[ $? -ne 0 ]]; then
+        log "Unable to delete city from database" show
+        return 2
+    fi
+    rm "$database_dir/$city.txt"
+    log "$city removed from database succussfully" show
+    return 0
+}
+
+list_of_cities(){
+    log "Checking for existense of cities.txt"
+    if [[ ! -f $database_file || ! -s $database_file ]]; then 
+        log "There is no city in $database_file file" show
+        return 1
+    fi
+
+    log "Printing cities..."
+    cat $database_file
+    return 0
+}
+
+
+retrive_info(){
+
+    local city="$1"
+    local request_url="wttr.in/$city?format=%l+-+%t+-+%C+-+%w+-+%h"
+    local tmpfile=$(mktemp /tmp/curlwithcode.XXXXXX)
+
+    local status_code=$(curl -s $request_url -w "%{http_code}" -o $tmpfile )
+    
+
+    if [[ $status_code -eq 404 ]]; then
+        echo "404"
+        rm $tmpfile
+        return 1 # 404
+    fi
+
+    if [[ $status_code -ne 200 ]]; then
+        echo "500"
+        rm $tmpfile
+        return 2 # 200
+    fi
+
+    cat $tmpfile
+    rm $tmpfile
+    return 0 
+}
+
+
+update_cities(){
+    
+    log "Checking for existense of cities.txt"
+    if [[ ! -f $database_file || ! -s $database_file ]]; then 
+        log "There is no city in $database_file file" show
+        return 1
+    fi
+
+    local city
+    local response
+    for city in $(cat $database_file); do
+        log "Getting real-time weather for city '$city_name'"
+        local response=$(retrive_info $city)
+
+        log "Checking status of $city request"
+        if [[ $response == "500" ]]; then
+            log "Something is wrong with the server" show
+            log "Error while trying to retrive data for $city" show
+            continue
+        fi
+        log "$city response recived"
+
+        local current_date=$(date)
+        local data="$current_date:$response"
+
+        echo $data >> "$database_dir/$city.txt" 
+        log "$city has updated" show
+    done
+}
+
+
+function usage() {
+
+    cat <<EOF
+Welcome to  EPWeather Tracker!
+-----------------------------------
+Manage your cities and track weather easily.
+
+Usage:
+  epw -l                   List all cities currently in the database.
+  epw -d CityName          Delete a city from the database.
+  epw -u                   Retrieve weather conditions for all cities and append to each city's file.
+  epw -n CityName          Show real-time weather conditions for a city without appending it to the file.
+  epw -h                   Display this help message.
+  epw CityName             Show last updated weather conditions for a city from database locally.
+
+EOF
+}
+
+main $@
