@@ -119,6 +119,16 @@ add_city_to_db(){
         fi
     fi
 
+    log "Check if $city is a valid city"
+    local response=$(retrive_info $city)
+    
+    if [[ $response == "404" ]]; then
+        log "$city is not a valid city name" show
+        log "Failed to add $city to database"
+        exit 1
+    fi
+
+
     log "Appending $city to the database"
     echo $city >> $database_file
     log "$city added to the database succussfully" show 
