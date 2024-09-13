@@ -6,9 +6,11 @@ SCRIPT="epwtr"
 CITIES_FILE="$DB_DIR/cities.txt"
 LOG_DIR="/var/log/epweather"
 LOG_FILE="$LOG_DIR/epw.log"
+SERVICE_FILE="/etc/systemd/system/epweather.service"
+TIMER_FILE="/etc/systemd/system/epweather.timer"
 
 if [[ $EUID -ne 0 ]]; then
-   echo "This script must be run as root or using sudo!" 1>&2
+   echo "run this script with sudo"
    exit 1
 fi
 
@@ -31,3 +33,28 @@ chmod 777 "$DB_DIR"
 chmod 666 "$CITIES_FILE"
 chmod 777 "$LOG_DIR"
 chmod 666 "$LOG_FILE"
+
+cat <<EOF > "$SERVICE_FILE"
+[Unit]
+Description=run epw -u to update weather data
+
+[Service]
+ExecStart=/opt/data/epweather/epwtr -u
+EOF
+
+cat <<EOF > "$TIMER_FILE"
+[Unit]
+Description=timer to run epw every 10 minutes
+
+[Timer]
+OnBootSec=10min
+OnUnitActiveSec=10min
+Persistent=true
+
+[Install]
+WantedBy=timers.target
+EOF
+
+systemctl daemon-reload
+systemctl enable epweather.timer
+systemctl start epweather.timer
