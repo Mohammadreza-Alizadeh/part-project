@@ -101,9 +101,9 @@ main() {
 
 log() {
     if [[ $verbose == "true" || "$2" == "show" ]]; then
-        echo "$(date +'%Y-%m-%d %H:%M:%S') - $1" | sudo tee -a "$log_dir"
+        echo "$(date +'%Y-%m-%d %H:%M:%S') - $1" | tee -a "$log_dir"
     else
-        echo "$(date +'%Y-%m-%d %H:%M:%S') - $1" | sudo tee -a "$log_dir" >&/dev/null
+        echo "$(date +'%Y-%m-%d %H:%M:%S') - $1" | tee -a "$log_dir" >&/dev/null
     fi
 }
 
