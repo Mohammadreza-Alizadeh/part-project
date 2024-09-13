@@ -58,3 +58,6 @@ EOF
 systemctl daemon-reload
 systemctl enable epweather.timer
 systemctl start epweather.timer
+
+echo "epw installed succussfullt"
+echo "try running epw -h"
