@@ -3,6 +3,7 @@
 
 config_nft(){
 
+    # Create bacup if config file if it exist
     if [[ -f "/etc/nftables.conf" ]]; then
         log "config file is exists." 
         log "creating a backup for config file." 
@@ -11,12 +12,17 @@ config_nft(){
         sudo cp "/etc/nftables.conf" "/etc/part-backups/nft.d/nftables.conf.bak.$suffix"
     fi
 
-    if [[ -f "/etc/ssh/sshd_config" || $(grep -wq "Port")  ]]; then
+    if [[ -f "/etc/ssh/sshd_config"  ]]; then
+        grep -wq "Port" "/etc/ssh/sshd_config" 
+        if [[ $? -ne 0 ]]; then
+            log "couldn't find the ssh port in sshd_config file" show 
+            return 1
+        fi
         local ssh_port=$(grep -w "Port" "/etc/ssh/sshd_config" | cut -d " " -f 2)
         log "ssh port found in sshd_config file"
         log "current ssh port is $ssh_port"
     else
-        log "couldn't find the ssh port in sshd_config file" show 
+        log "couldn't find sshd_config file" show 
         return 1
     fi
 

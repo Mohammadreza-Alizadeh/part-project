@@ -14,7 +14,7 @@ config_ssh(){
             log "user refused to install openssh-server"
             return 2 # didn't want to install  
         fi
-        sudo apt install -y openssh-server
+        sudo apt install -y openssh-server &>/dev/null
 
         if [[ $? -ne 0 ]]; then
             log "unable to install openssh via apt"
