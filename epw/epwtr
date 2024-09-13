@@ -205,6 +205,11 @@ retrive_info(){
 
 update_cities(){
     
+    if [[ $EUID -ne 0 ]]; then
+        echo "updating cities reqires sudo previlage"
+        exit 1
+    fi
+
     log "Checking for existense of cities.txt"
     if [[ ! -f $database_file || ! -s $database_file ]]; then 
         log "There is no city in $database_file file" show
