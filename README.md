@@ -7,3 +7,8 @@ This project is the final project of the course, developed by Mohammadreza Aliza
 - **Phase 1 ( auto-configer ) :** A system configuration script for Debian-based Linux distributions. This script automates key tasks such as creating `users`, changing `APT` sources, configuring `SSH` and `NTP`, and setting up firewall rules with `nftables`.
   
 - **Phase 2 ( EPWeather ):** A Bash program that tracks weather conditions for different cities using the `wttr.in` API. This phase provides practical experience with fetching and displaying real-time weather data.
+
+
+
+### Copyright
+This project is copyrighted by Emperor Penguin College 3 and Part Software Group. All rights reserved.
