@@ -9,7 +9,11 @@ setup_cron(){
     sudo crontab -l > "$tmp_addr"
 
     # Prevent duplication
-    sudo sed -i "\%\*/2 \* \* \* \* bash /usr/loacl/share/part-tools/data-collector.sh%d" "$tmp_addr"
+    grep -Fq '*/2 * * * * /bin/bash /usr/local/share/part-tools/data-collector.sh'
+    if [[ $? -eq 0 ]]; then
+        log "Cron is already exists" show
+        return 1
+    fi
 
     log "appending new cron to tmp file"
     echo "$cron" >> "$tmp_addr"
