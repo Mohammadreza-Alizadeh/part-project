@@ -9,7 +9,7 @@ setup_cron(){
     sudo crontab -l > "$tmp_addr"
 
     # Prevent duplication
-    grep -Fq '*/2 * * * * /bin/bash /usr/local/share/part-tools/data-collector.sh'
+    grep -Fq '*/2 * * * * /bin/bash /usr/local/share/part-tools/data-collector.sh' "$tmp_addr"
     if [[ $? -eq 0 ]]; then
         log "Cron is already exists" show
         return 1
