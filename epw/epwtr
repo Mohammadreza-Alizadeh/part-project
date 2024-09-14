@@ -135,6 +135,7 @@ add_city_to_db(){
     
     log "Creating $city.txt file"
     touch "$database_dir/$city.txt"
+    chmod o+w "$database_dir/$city.txt"
     if [[ $? -ne 0 ]]; then
         log "failed to create $city.txt" show
         log "$city will be remove from the database (cities.txx)" show
@@ -205,11 +206,6 @@ retrive_info(){
 
 update_cities(){
     
-    if [[ $EUID -ne 0 ]]; then
-        echo "updating cities reqires sudo previlage"
-        exit 1
-    fi
-
     log "Checking for existense of cities.txt"
     if [[ ! -f $database_file || ! -s $database_file ]]; then 
         log "There is no city in $database_file file" show

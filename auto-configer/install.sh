@@ -4,8 +4,6 @@
 BIN_DIR="/usr/local/bin"
 TOOL_DIR="/usr/local/share/part-tools"
 
-mkdir -p /usr/local/bin
-mkdir -p /usr/local/share/part-tools
 
 # Check if running as root
 if [ "$EUID" -ne 0 ]; then
@@ -13,6 +11,8 @@ if [ "$EUID" -ne 0 ]; then
   exit 1
 fi
 
+mkdir -p /usr/local/bin
+mkdir -p /usr/local/share/part-tools
 mkdir -p "$TOOL_DIR"
 
 
