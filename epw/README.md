@@ -24,7 +24,7 @@
     ```bash
     sudo chmod +x ./install.sh
     ```
-4. Now Run ./install.sh
+4. Now Run ./install.sh, this will install the script and also create a service that runs `epw -u` and also creates a timer using **systemd-timer feature** that trigers mentiond service every 10 minutes    
     ```bash
     sudo ./install.sh
     ```
@@ -74,8 +74,6 @@ After running the installation, several important directories and files are crea
      - `epw`: A soft link to `/opt/data/epweather/epwtr`
    
    - **Path**: `/usr/local/bin/epw` -> `/opt/data/epweather/epwtr/`
-
-
 
 
 
