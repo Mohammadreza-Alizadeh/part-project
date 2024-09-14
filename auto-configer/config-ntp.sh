@@ -37,7 +37,7 @@ config_ntp(){
     sudo mkdir -p $backups_dir && sudo cp "$config_addr" "$backups_dir/config.bak.$suffix"
     
     sudo sed -i '/^pool.*/d' $config_addr 
-    echo 'pool org.ntp.pool iburst' | sudo tee -a $config_addr &>/dev/null
+    echo 'pool pool.ntp.org iburst' | sudo tee -a $config_addr &>/dev/null
     
     log "restarting ntp service using systemctl" 
     sudo systemctl restart ntp
@@ -47,7 +47,7 @@ config_ntp(){
         log "falied to restart ntp service using systemctl" show
     fi
 
-    log "NTP configured to use org.ntp.pool" show
+    log "NTP configured to use pool.ntp.org" show
     return 0
 
 }
