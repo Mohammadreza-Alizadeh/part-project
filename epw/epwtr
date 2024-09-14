@@ -195,7 +195,7 @@ retrive_info(){
     if [[ $status_code -ne 200 ]]; then
         echo "500"
         rm $tmpfile
-        return 2 # 200
+        return 2 # 500
     fi
 
     cat $tmpfile
