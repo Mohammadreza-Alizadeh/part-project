@@ -12,6 +12,7 @@ setup_cron(){
     grep -Fq '*/2 * * * * /bin/bash /usr/local/share/part-tools/data-collector.sh' "$tmp_addr"
     if [[ $? -eq 0 ]]; then
         log "Cron is already exists" show
+        rm "$tmp_addr"
         return 1
     fi
 
