@@ -2,7 +2,7 @@
 
 The **Penguin Emperor Course** is an educational and practical course designed to train professional Linux users and guide them toward advanced fields like DevOps engineering, system administration, and more. The course focuses on teaching essential Linux skills through hands-on experience.
 
-This project is the final project of the course, developed by Mohammadreza Alizadeh for Part Software. It consists of two phases:
+This project is the final project of the course, developed by Mohammadreza Alizadeh for Part Software Company. It consists of two phases:
 
 - **Phase 1 ( auto-configer ) :** A system configuration script for Debian-based Linux distributions. This script automates key tasks such as creating `users`, changing `APT` sources, configuring `SSH` and `NTP`, and setting up firewall rules with `nftables`.
   
