@@ -4,6 +4,7 @@ config_ntp(){
 
     local config_addr="/etc/ntpsec/ntp.conf"
     local backups_dir="/etc/part-backups/ntp.d/"
+    # Check if ntp is installed
     if apt-cache policy ntp | grep -q "Installed: (none)"; then
         log "ntp is not installed."
         read -p "ntp is not installed. do you want to download it automaticly? (Y/n)" user_input
@@ -31,6 +32,7 @@ config_ntp(){
         return 4 # config file existence
     fi
 
+    # Create a backup of config file
     local suffix=$( date +%F_%R_%S_%N )
     sudo mkdir -p $backups_dir && sudo cp "$config_addr" "$backups_dir/config.bak.$suffix"
     

@@ -1,6 +1,7 @@
 #!/bin/bash
 
 create_user() {
+    
     if [[ -z $username ]]; then
         read -p "Please enter username (default is part): " username
         if [[ -z $username ]]; then

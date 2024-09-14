@@ -12,6 +12,7 @@ config_nft(){
         sudo cp "/etc/nftables.conf" "/etc/part-backups/nft.d/nftables.conf.bak.$suffix"
     fi
 
+    # Find ssh port in sshd_config
     if [[ -f "/etc/ssh/sshd_config"  ]]; then
         grep -wq "Port" "/etc/ssh/sshd_config" 
         if [[ $? -ne 0 ]]; then
@@ -27,7 +28,7 @@ config_nft(){
     fi
 
     log "adjusting rules to nftables.conf"
-    sudo tee "/etc/nftables.conf" &>/dev/null << EOF
+    sudo cat << EOF > "/etc/nftables.conf"
 #!/usr/sbin/nft -f
 
 flush ruleset

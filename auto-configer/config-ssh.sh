@@ -5,6 +5,8 @@ config_ssh(){
     
     local config_addr="/etc/ssh/sshd_config"
     local backups_dir="/etc/part-backups/ssh.d"
+
+    # Check if ssh is installed or not
     if apt-cache policy openssh-server | grep -q "Installed: (none)"; then
         log "openssh-server is not installed."
         read -p "openssh-server is not installed. do you want to download it automaticly? (Y/n)" user_input
@@ -22,8 +24,7 @@ config_ssh(){
             return 3 # apt error
         fi
 
-        log "openssh is installed succussfully" &>/dev/null 
-        echo "openssh is installed succussfully" 
+        log "openssh is installed succussfully" show  
     else
         log "openssh is already installded"
     fi
@@ -37,6 +38,7 @@ config_ssh(){
     local suffix=$( date +%F_%R_%S_%N )
     sudo mkdir -p $backups_dir && sudo cp "$config_addr" "$backups_dir/config.bak.$suffix"
     
+    # Find and replace port   
     sudo sed -i "s/^#\?Port [1-9]*/Port $port/" $config_addr
     if [[ $? ]]; then
         log "SSH Port configured succussfully" show
@@ -62,7 +64,7 @@ change_motd(){
     local suffix=$( date +%F_%R_%S_%N )
     sudo mkdir -p /etc/part-backups/motd.d
     sudo cp "/etc/motd" "/etc/part-backups/motd.d/motd.bak.$suffix"
-    sudo tee "/etc/motd" &>/dev/null << EOF 
+    sudo cat << EOF > "/etc/motd"  
         ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡄⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⡇⢇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
     ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠃⠸⠀⠀⠀⣀⣠⡄⠀⠀⠀⠁⢸⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
     ⠀⠀⠀⠀⠀⠘⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⣤⣶⡶⠛⠛⠛⠟⢂⣶⣆⡀⠀⠇⠀⠀⠄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀

@@ -13,16 +13,13 @@ if [ "$EUID" -ne 0 ]; then
   exit 1
 fi
 
-# Create the directory for private tools
 mkdir -p "$TOOL_DIR"
 
-# Install interface.sh in /usr/local/bin
-echo "Installing part to $BIN_DIR..."
+
+# Copy each file to its location
 cp part "$BIN_DIR/part"
 chmod +x "$BIN_DIR/part"
 
-# Install tool1.sh and other tools in the private directory
-echo "Installing tools to $TOOL_DIR..."
 cp change-sources.sh "$TOOL_DIR/"
 chmod +x "$TOOL_DIR/change-sources.sh"
 
@@ -43,6 +40,5 @@ chmod +x "$TOOL_DIR/data-collector.sh"
 
 cp setup-cron.sh "$TOOL_DIR/"
 chmod +x "$TOOL_DIR/setup-cron.sh"
-
 
 echo "Installation complete!"
